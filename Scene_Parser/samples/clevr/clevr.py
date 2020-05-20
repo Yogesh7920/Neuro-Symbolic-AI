@@ -24,6 +24,8 @@ import numpy as np
 import skimage.draw
 from skimage.filters import threshold_mean
 from skimage import color
+import pycocotools
+import pycocotools.mask as maskutils
 
 # Root directory of the project
 ROOT_DIR = os.path.abspath("../../")
@@ -133,7 +135,9 @@ class ClevrDataset(utils.Dataset):
                 "clevr",
                 image_id=scene['image_filename'],  # use file name as a unique image id
                 path=image_path,
-                class_ids=class_ids)
+                class_ids=class_ids,
+                masks = [objects['mask'] for objects in scene['objects']]
+                )
 
     def load_mask(self, image_id):
 
@@ -147,15 +151,11 @@ class ClevrDataset(utils.Dataset):
         image_info = self.image_info[image_id]
 
         mask = []
-        mask_dir = image_info['path'][:-4] + '/mask/'
+        masks = image_info['masks']
+        for m in masks:
+            m = maskutils.decode(m)
+            mask.append(m)
 
-        for f in sorted(next(os.walk(mask_dir))[2]):
-            if f.endswith(".png"):
-                m = skimage.io.imread(os.path.join(mask_dir, f))
-                m = color.rgb2gray(m)
-                thresh = threshold_mean(m)
-                m = m > thresh
-                mask.append(m)
         mask = np.stack(mask, axis=-1)
 
         class_ids = image_info['class_ids']
