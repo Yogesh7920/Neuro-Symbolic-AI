@@ -1,5 +1,6 @@
 # IDEs and editors
 /.idea
+/.ipynb_checkpoints
 .project
 .classpath
 .c9/
@@ -15,3 +16,9 @@
 !.vscode/extensions.json
 .history/*
 *.h5
+
+# extra
+images/
+CLEVR_mini/
+samples/
+!samples/clevr
